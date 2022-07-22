@@ -489,3 +489,7 @@ variable "iam_role_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "assume_policy_document" {
+  type = string
+}

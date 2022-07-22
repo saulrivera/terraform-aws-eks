@@ -428,6 +428,14 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
+data "aws_iam_policy_document" "combined" {
+  count = var.create && var.create_iam_role && var.assume_policy_document != null ? 1 : 0
+  source_policy_documents = [
+    var.assume_policy_document,
+    data.aws_iam_policy_document.assume_role_policy[0].json
+  ]
+}
+
 resource "aws_iam_role" "this" {
   count = var.create && var.create_iam_role ? 1 : 0
 
@@ -436,7 +444,7 @@ resource "aws_iam_role" "this" {
   path        = var.iam_role_path
   description = var.iam_role_description
 
-  assume_role_policy    = data.aws_iam_policy_document.assume_role_policy[0].json
+  assume_role_policy    = var.assume_policy_document != null ? data.aws_iam_policy_document.combined[0].json : data.aws_iam_policy_document.assume_role_policy[0].json
   permissions_boundary  = var.iam_role_permissions_boundary
   force_detach_policies = true
 
